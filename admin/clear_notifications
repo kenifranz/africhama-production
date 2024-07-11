@@ -1,0 +1,42 @@
+<?php
+// File: admin/clear_notifications.php
+session_start();
+$base_path = '/africhama-production';
+$root_path = $_SERVER['DOCUMENT_ROOT'] . $base_path;
+require_once $root_path . '/db_connect.php';
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action'])) {
+        if ($_POST['action'] === 'clear_all') {
+            // Clear all notifications for the user
+            $stmt = $conn->prepare("UPDATE notifications SET is_read = 1 WHERE user_id = ?");
+            $stmt->bind_param("i", $user_id);
+        } elseif ($_POST['action'] === 'clear_one' && isset($_POST['notification_id'])) {
+            // Clear a specific notification
+            $notification_id = $_POST['notification_id'];
+            $stmt = $conn->prepare("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?");
+            $stmt->bind_param("ii", $notification_id, $user_id);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Invalid action']);
+            exit;
+        }
+
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Database error']);
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Missing action parameter']);
+    }
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+}

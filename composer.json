@@ -1,0 +1,9 @@
+{
+    "require": {
+        "ext-gettext": "*",
+        "paypal/paypal-checkout-sdk": "^1.0",
+        "cboden/ratchet": "^0.4.4",
+        "vlucas/phpdotenv": "^5.3",
+        "paypal/rest-api-sdk-php": "^1.14"
+    }
+}
